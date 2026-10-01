@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fondo Volcánico - My Hero Academia & Morfius</title>
+    <!-- Google Fonts for Epic Anime Titles & Readable Content -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Cinzel+Decorative:wght@700;900&family=Inter:wght@300;400;600;700&family=Russo+One&display=swap" rel="stylesheet">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            width: 100%;
+            min-height: 100vh;
+            background-color: #050203;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            color: #f3e8e8;
+            overflow-x: hidden;
+            overflow-y: auto;
+        }
+
+        /* Custom Scrollbar for the page */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0d0406;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #ff4500;
+            border-radius: 4px;
+            box-shadow: 0 0 10px rgba(255, 69, 0, 0.5);
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #ff7700;
+        }
+
+        /* Background Canvas (Sky, Volcano, Lava rivers) */
+        #bgCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            display: block;
+            z-index: 1;
+        }
+
+        /* Foreground Overlay Canvas (Ashes, Sparks, Embers passing OVER content) */
+        #fgCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            display: block;
+            z-index: 20; /* High z-index to fly above text box */
+            pointer-events: none; /* Allows text selection & clicking through to content */
+        }
+
+        /* Main Content Container overlaid between canvases */
+        .content-overlay {
+            position: relative;
+            z-index: 10; /* Rendered between bgCanvas and fgCanvas */
+            width: 100%;
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 30px 20px 60px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 28px;
+        }
+
+        /* HEADER TITLE STYLES */
+        .header-title-container {
+            width: 100%;
+            text-align: center;
+            perspective: 1000px;
+        }
+
+        .header-title-wrapper {
+            position: relative;
+            display: inline-block;
+            padding: 22px 36px;
+            background: linear-gradient(180deg, rgba(20, 5, 7, 0.85) 0%, rgba(8, 2, 3, 0.92) 100%);
+            border: 2px solid rgba(255, 90, 20, 0.7);
+            border-radius: 16px;
+            backdrop-filter: blur(12px);
+            box-shadow: 
+                0 0 30px rgba(255, 60, 0, 0.45),
+                0 0 60px rgba(200, 20, 0, 0.25),
+                inset 0 0 25px rgba(255, 100, 0, 0.35);
+            animation: containerGlow 2.5s infinite alternate ease-in-out;
+            overflow: hidden;
+        }
+
+        /* Corner accents for title box */
+        .header-title-wrapper::before,
+        .header-title-wrapper::after {
+            content: '';
+            position: absolute;
+            width: 18px;
+            height: 18px;
+            border-color: #ffaa00;
+            border-style: solid;
+            pointer-events: none;
+        }
+        .header-title-wrapper::before {
+            top: 6px;
+            left: 6px;
+            border-width: 3px 0 0 3px;
+            box-shadow: -3px -3px 10px #ff5500;
+        }
+        .header-title-wrapper::after {
+            bottom: 6px;
+            right: 6px;
+            border-width: 0 3px 3px 0;
+            box-shadow: 3px 3px 10px #ff5500;
+        }
+
+        .header-title {
+            font-family: 'Cinzel Decorative', 'Bebas Neue', 'Russo One', cursive, sans-serif;
+            font-size: clamp(1.1rem, 2.7vw, 2.1rem);
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            line-height: 1.35;
+            
+            /* Molten Lava Gradient Text */
+            background: linear-gradient(
+                180deg, 
+                #ffffff 0%, 
+                #ffea75 22%, 
+                #ff9900 50%, 
+                #ff3300 78%, 
+                #990000 100%
+            );
+            background-size: 100% 200%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+
+            filter: drop-shadow(0 0 8px rgba(255, 200, 0, 0.9))
+                    drop-shadow(0 0 18px rgba(255, 60, 0, 0.8))
+                    drop-shadow(0 0 35px rgba(180, 0, 0, 0.9));
+
+            animation: moltenFlow 4s ease infinite alternate, fireFlicker 0.15s infinite alternate;
+        }
+
+        /* OBSIDIAN POWER SYSTEM CARD STYLES */
+        .power-card {
+            width: 100%;
+            background: rgba(15, 8, 8, 0.75); /* Glassmorphism translucency so embers & bg show through */
+            border: 1px solid rgba(255, 80, 20, 0.45);
+            border-radius: 20px;
+            backdrop-filter: blur(12px);
+            padding: 32px 36px;
+            box-shadow: 
+                0 15px 35px rgba(0, 0, 0, 0.8),
+                0 0 30px rgba(255, 60, 0, 0.25),
+                inset 0 1px 0 rgba(255, 200, 150, 0.15);
+            position: relative;
+            overflow: hidden;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .power-card:hover {
+            border-color: rgba(255, 120, 30, 0.75);
+            box-shadow: 
+                0 20px 45px rgba(0, 0, 0, 0.9),
+                0 0 45px rgba(255, 80, 0, 0.4),
+                inset 0 1px 0 rgba(255, 220, 180, 0.25);
+        }
+
+        .card-main-title {
+            font-family: 'Russo One', sans-serif;
+            font-size: clamp(1.4rem, 2.5vw, 2.2rem);
+            text-align: center;
+            letter-spacing: 3px;
+            color: #fff;
+            text-shadow: 
+                0 0 10px rgba(255, 100, 0, 0.9),
+                0 0 25px rgba(255, 30, 0, 0.7);
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid rgba(255, 80, 0, 0.3);
+            position: relative;
+        }
+
+        .card-main-title::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 120px;
+            height: 2px;
+            background: #ff8800;
+            box-shadow: 0 0 12px #ff4500;
+        }
+
+        .power-section {
+            margin-bottom: 32px;
+            background: rgba(24, 10, 12, 0.55);
+            border-radius: 14px;
+            padding: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.5);
+        }
+
+        .power-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 18px;
+            flex-wrap: wrap;
+        }
+
+        .section-title {
+            font-family: 'Russo One', sans-serif;
+            font-size: clamp(1.2rem, 2vw, 1.6rem);
+            color: #ffaa33;
+            text-shadow: 0 0 12px rgba(255, 120, 0, 0.6);
+            letter-spacing: 1px;
+        }
+
+        .badge {
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 4px 12px;
+            border-radius: 20px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .badge-global {
+            background: rgba(255, 80, 0, 0.25);
+            color: #ff8844;
+            border: 1px solid rgba(255, 100, 20, 0.5);
+        }
+
+        .badge-mexico {
+            background: rgba(0, 200, 100, 0.2);
+            color: #44ffaa;
+            border: 1px solid rgba(0, 220, 120, 0.4);
+            box-shadow: 0 0 10px rgba(0, 255, 128, 0.2);
+        }
+
+        .info-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .info-item {
+            line-height: 1.6;
+            font-size: clamp(0.92rem, 1.1vw, 1.02rem);
+            color: #e6dede;
+        }
+
+        .info-label {
+            font-weight: 700;
+            color: #ffcc66;
+            margin-right: 6px;
+            display: inline-block;
+        }
+
+        .sub-list {
+            list-style: none;
+            margin-top: 8px;
+            margin-left: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            border-left: 2px solid rgba(255, 100, 0, 0.35);
+            padding-left: 14px;
+        }
+
+        .sub-item {
+            position: relative;
+            font-size: 0.95rem;
+            color: #dcd0d0;
+        }
+
+        .sub-item::before {
+            content: '•';
+            position: absolute;
+            left: -14px;
+            color: #ff6600;
+            font-weight: bold;
+        }
+
+        .warning-text {
+            color: #ff7777;
+            background: rgba(80, 15, 15, 0.5);
+            padding: 10px 14px;
+            border-radius: 8px;
+            border-left: 3px solid #ff3333;
+            margin-top: 6px;
+            display: inline-block;
+        }
+
+        /* Interactive Hint Footer */
+        .ui-hint {
+            color: rgba(255, 220, 180, 0.9);
+            text-shadow: 0 0 12px rgba(255, 60, 0, 0.9);
+            font-size: 0.82rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            text-align: center;
+            background: rgba(20, 7, 7, 0.7);
+            padding: 10px 24px;
+            border-radius: 30px;
+            border: 1px solid rgba(255, 110, 30, 0.4);
+            backdrop-filter: blur(8px);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
+            margin-top: 10px;
+        }
+
+        /* Keyframe Animations */
+        @keyframes moltenFlow {
+            0% { background-position: 0% 0%; }
+            100% { background-position: 0% 100%; }
+        }
+
+        @keyframes fireFlicker {
+            0% { opacity: 0.96; transform: scale(1); }
+            100% { opacity: 1; transform: scale(1.004); }
+        }
+
+        @keyframes containerGlow {
+            0% {
+                border-color: rgba(255, 80, 20, 0.5);
+                box-shadow: 
+                    0 0 25px rgba(255, 60, 0, 0.35),
+                    0 0 50px rgba(180, 10, 0, 0.2),
+                    inset 0 0 18px rgba(255, 90, 0, 0.2);
+            }
+            100% {
+                border-color: rgba(255, 170, 40, 0.85);
+                box-shadow: 
+                    0 0 45px rgba(255, 90, 0, 0.65),
+                    0 0 85px rgba(220, 30, 0, 0.45),
+                    inset 0 0 30px rgba(255, 140, 0, 0.45);
+            }
+        }
+
+        @media (max-width: 640px) {
+            .power-card {
+                padding: 20px 18px;
+            }
+            .power-section {
+                padding: 16px;
+            }
+            .header-title-wrapper {
+                padding: 16px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Background Canvas for landscape and lava -->
+    <canvas id="bgCanvas"></canvas>
+    
+    <!-- Foreground Canvas for particles floating OVER the card text -->
+    <canvas id="fgCanvas"></canvas>
+
+    <!-- CONTENT OVERLAY PANEL -->
+    <div class="content-overlay">
+        <!-- HEADER TITLE -->
+        <div class="header-title-container">
+            <div class="header-title-wrapper">
+                <h1 class="header-title">Pero no solo se centraría en la historia principal, sino también en otras partes del universo de MHA</h1>
+            </div>
+        </div>
+
+        <!-- POWER SYSTEM OBSIDIAN CARD -->
+        <div class="power-card">
+            <h2 class="card-main-title">SISTEMA DE PODERES</h2>
+
+            <!-- SECTION 1: QUIRK -->
+            <div class="power-section">
+                <div class="section-header">
+                    <h3 class="section-title">Quirk / Don</h3>
+                    <span class="badge badge-global">El estándar global</span>
+                </div>
+                <ul class="info-list">
+                    <li class="info-item">
+                        <span class="info-label">Origen:</span>
+                        La siguiente etapa en la evolución humana. Se estima que alrededor del 80% de la población mundial posee uno.
+                    </li>
+                    <li class="info-item">
+                        <span class="info-label">Manifestación:</span>
+                        Suele despertar durante la infancia, por lo general antes de los cuatro años de edad.
+                    </li>
+                    <li class="info-item">
+                        <span class="info-label">Herencia:</span>
+                        Transmisión puramente genética de padres a hijos, con la capacidad de combinarse, fusionarse o mutar entre generaciones.
+                    </li>
+                    <li class="info-item">
+                        <span class="info-label">Naturaleza:</span>
+                        Abarca una variedad casi infinita de habilidades (emisión, transformación, mutación).
+                    </li>
+                </ul>
+            </div>
+
+            <!-- SECTION 2: MORFIUS -->
+            <div class="power-section">
+                <div class="section-header">
+                    <h3 class="section-title">Morfius</h3>
+                    <span class="badge badge-mexico">El fenómeno mexicano</span>
+                </div>
+                <ul class="info-list">
+                    <li class="info-item">
+                        <span class="info-label">Origen:</span>
+                        Un fenómeno biológico y adaptativo exclusivo de México. No sigue las reglas genéticas tradicionales y se manifiesta de manera aleatoria en la población, independientemente de si la persona nació con un Quirk o si es Quirkless (sin don).
+                    </li>
+                    <li class="info-item">
+                        <span class="info-label">Naturaleza:</span>
+                        Es un poder de transformación orgánica completa que permite al portador convertirse en criaturas prehistóricas (dinosaurios, megafauna del Cenozoico, entre otros seres extintos).
+                    </li>
+                    <li class="info-item">
+                        <span class="info-label">Integración con Quirks:</span>
+                        <ul class="sub-list">
+                            <li class="sub-item">Si el portador tiene un Quirk, el Morfius no lo anula, sino que lo adapta a la anatomía de la bestia. Por ejemplo, una habilidad de energía proyectada desde las manos en forma humana se canalizará desde las fauces en forma de criatura.</li>
+                            <li class="sub-item">Si el portador es Quirkless, el Morfius actúa como su única pero devastadora fuente de poder.</li>
+                        </ul>
+                    </li>
+                    <li class="info-item">
+                        <span class="info-label">Control de escala:</span>
+                        El portador puede manipular el tamaño y etapa de desarrollo de su transformación a voluntad, pudiendo cambiar desde su forma adulta a una versión miniatura (bebé) para infiltración, transporte o descanso.
+                    </li>
+                    <li class="info-item">
+                        <span class="info-label">Efecto secundario / Desventaja:</span>
+                        <div class="warning-text">
+                            Tras regresar a la forma humana, la epidermis sufre un periodo de hipersensibilidad extrema. Durante 5 minutos, la piel queda completamente expuesta y vulnerable a cualquier impacto, roce o exposición directa a los rayos solares.
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="ui-hint">Mueve el cursor o toca la pantalla para generar chispas sobre el texto</div>
+    </div>
+
+    <script>
+        window.addEventListener('load', () => {
+            const bgCanvas = document.getElementById('bgCanvas');
+            const bgCtx = bgCanvas.getContext('2d');
+
+            const fgCanvas = document.getElementById('fgCanvas');
+            const fgCtx = fgCanvas.getContext('2d');
+
+            let width, height;
+            let volcanoBaseY, craterX, craterY, craterWidth;
+
+            let ashes = [];
+            let smokes = [];
+            let lavaSparks = [];
+            let interactiveSparks = [];
+
+            let time = 0;
+
+            function resize() {
+                width = bgCanvas.width = fgCanvas.width = window.innerWidth;
+                height = bgCanvas.height = fgCanvas.height = window.innerHeight;
+                volcanoBaseY = height;
+                craterX = width * 0.5;
+                craterY = height * 0.48;
+                craterWidth = Math.max(100, width * 0.14);
+            }
+
+            resize();
+            window.addEventListener('resize', resize);
+
+            /* ASHES / EMBERS (Rendered in Foreground Canvas over Text Box) */
+            class Ash {
+                constructor(initial = false) {
+                    this.reset(initial);
+                }
+
+                reset(initial = false) {
+                    this.x = Math.random() * width;
+                    this.y = initial ? Math.random() * height : height + 15;
+                    this.size = Math.random() * 2.8 + 0.8;
+                    this.speedY = -(Math.random() * 1.8 + 0.5);
+                    this.speedX = Math.random() * 0.9 - 0.45;
+                    this.opacity = Math.random() * 0.85 + 0.25;
+                    this.hue = Math.random() * 40 + 10; 
+                    this.oscillationSpeed = Math.random() * 0.04 + 0.01;
+                    this.angle = Math.random() * Math.PI * 2;
+                }
+
+                update() {
+                    this.angle += this.oscillationSpeed;
+                    this.x += this.speedX + Math.sin(this.angle) * 0.7;
+                    this.y += this.speedY;
+                    this.opacity -= 0.001;
+
+                    if (this.y < -20 || this.opacity <= 0) {
+                        this.reset(false);
+                    }
+                }
+
+                draw(ctx) {
+                    ctx.save();
+                    ctx.fillStyle = `hsla(${this.hue}, 100%, 65%, ${this.opacity})`;
+                    ctx.shadowColor = `hsl(${this.hue}, 100%, 50%)`;
+                    ctx.shadowBlur = this.size * 4;
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.restore();
+                }
+            }
+
+            /* VOLCANIC SMOKE */
+            class Smoke {
+                constructor() {
+                    this.reset();
+                }
+
+                reset() {
+                    this.x = craterX + (Math.random() - 0.5) * (craterWidth * 0.7);
+                    this.y = craterY + (Math.random() - 0.5) * 8;
+                    this.size = Math.random() * 12 + 8;
+                    this.maxSize = Math.random() * 130 + 90;
+                    this.speedY = -(Math.random() * 1.6 + 0.7);
+                    this.speedX = (Math.random() - 0.5) * 0.9;
+                    this.opacity = Math.random() * 0.25 + 0.1;
+                    this.growthRate = Math.random() * 0.35 + 0.25;
+                    this.color = Math.random() > 0.4 ? '#18090b' : '#291113';
+                }
+
+                update() {
+                    this.x += this.speedX + Math.sin(this.y * 0.008) * 0.5;
+                    this.y += this.speedY;
+                    if (this.size < this.maxSize) {
+                        this.size += this.growthRate;
+                    }
+                    this.opacity -= 0.0015;
+
+                    if (this.opacity <= 0 || this.y < -this.maxSize) {
+                        this.reset();
+                    }
+                }
+
+                draw(ctx) {
+                    ctx.save();
+                    ctx.fillStyle = this.color;
+                    ctx.globalAlpha = Math.max(0, this.opacity);
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.restore();
+                }
+            }
+
+            /* INTERACTIVE SPARKS (Rendered in Foreground Canvas over Text Box) */
+            class Spark {
+                constructor(x, y, vx, vy, colorHue, sizeMult = 1) {
+                    this.x = x;
+                    this.y = y;
+                    this.vx = vx;
+                    this.vy = vy;
+                    this.size = (Math.random() * 3.5 + 1.2) * sizeMult;
+                    this.gravity = 0.08;
+                    this.opacity = 1;
+                    this.hue = colorHue || (Math.random() * 45 + 10);
+                    this.decay = Math.random() * 0.02 + 0.01;
+                }
+
+                update() {
+                    this.x += this.vx;
+                    this.y += this.vy;
+                    this.vy += this.gravity;
+                    this.opacity -= this.decay;
+                }
+
+                draw(ctx) {
+                    ctx.save();
+                    ctx.globalAlpha = Math.max(0, this.opacity);
+                    ctx.fillStyle = `hsl(${this.hue}, 100%, 65%)`;
+                    ctx.shadowColor = `hsl(${this.hue}, 100%, 55%)`;
+                    ctx.shadowBlur = 12;
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.restore();
+                }
+            }
+
+            // Populate particle arrays (Increased ash count for rich overlay effect)
+            for (let i = 0; i < 220; i++) ashes.push(new Ash(true));
+            for (let i = 0; i < 45; i++) smokes.push(new Smoke());
+
+            let mouse = { x: width / 2, y: height / 2, px: width / 2, py: height / 2 };
+
+            function triggerBurst(x, y, count = 30) {
+                for (let i = 0; i < count; i++) {
+                    const angle = Math.random() * Math.PI * 2;
+                    const speed = Math.random() * 8 + 2;
+                    const vx = Math.cos(angle) * speed;
+                    const vy = Math.sin(angle) * speed - 2.5;
+                    const hue = Math.random() * 45 + 10;
+                    interactiveSparks.push(new Spark(x, y, vx, vy, hue, 1.4));
+                }
+            }
+
+            // Global Mouse & Touch Interaction Window Events
+            window.addEventListener('mousemove', (e) => {
+                const dx = e.clientX - mouse.px;
+                const dy = e.clientY - mouse.py;
+                const speed = Math.sqrt(dx * dx + dy * dy);
+
+                mouse.x = e.clientX;
+                mouse.y = e.clientY;
+
+                if (speed > 4) {
+                    for (let i = 0; i < Math.min(Math.floor(speed / 3), 10); i++) {
+                        const vx = (Math.random() - 0.5) * 4 + dx * 0.08;
+                        const vy = (Math.random() - 0.5) * 4 + dy * 0.08 - 1;
+                        interactiveSparks.push(new Spark(mouse.x, mouse.y, vx, vy, Math.random() * 35 + 10));
+                    }
+                }
+
+                mouse.px = mouse.x;
+                mouse.py = mouse.y;
+            });
+
+            window.addEventListener('click', (e) => {
+                triggerBurst(e.clientX, e.clientY, 40);
+            });
+
+            window.addEventListener('touchmove', (e) => {
+                if (e.touches.length > 0) {
+                    const touch = e.touches[0];
+                    for (let i = 0; i < 4; i++) {
+                        const vx = (Math.random() - 0.5) * 4;
+                        const vy = (Math.random() - 0.5) * 4 - 1;
+                        interactiveSparks.push(new Spark(touch.clientX, touch.clientY, vx, vy, Math.random() * 35 + 10));
+                    }
+                }
+            }, { passive: true });
+
+            window.addEventListener('touchstart', (e) => {
+                if (e.touches.length > 0) {
+                    const touch = e.touches[0];
+                    triggerBurst(touch.clientX, touch.clientY, 30);
+                }
+            }, { passive: true });
+
+            /* RENDER SKY & ATMOSPHERE (BACKGROUND CANVAS) */
+            function renderSky() {
+                let skyGrad = bgCtx.createLinearGradient(0, 0, 0, height);
+                let glowPulse = Math.sin(time * 0.035) * 0.08 + 0.16;
+
+                skyGrad.addColorStop(0, '#030102');
+                skyGrad.addColorStop(0.45, '#120406');
+                skyGrad.addColorStop(0.8, `rgba(75, 18, 5, ${0.45 + glowPulse})`);
+                skyGrad.addColorStop(1, `rgba(130, 28, 0, ${0.65 + glowPulse})`);
+
+                bgCtx.fillStyle = skyGrad;
+                bgCtx.fillRect(0, 0, width, height);
+
+                let craterGlow = bgCtx.createRadialGradient(craterX, craterY, 10, craterX, craterY, width * 0.5);
+                craterGlow.addColorStop(0, `rgba(255, 75, 0, ${0.4 + glowPulse * 0.6})`);
+                craterGlow.addColorStop(0.5, `rgba(180, 30, 0, ${0.18 + glowPulse * 0.4})`);
+                craterGlow.addColorStop(1, 'rgba(0,0,0,0)');
+                bgCtx.fillStyle = craterGlow;
+                bgCtx.fillRect(0, 0, width, height);
+            }
+
+            /* RENDER VOLCANO SILHOUETTE & LAVA FLOWS (BACKGROUND CANVAS) */
+            function renderVolcano() {
+                bgCtx.save();
+
+                // Background mountain range
+                bgCtx.fillStyle = '#080204';
+                bgCtx.beginPath();
+                bgCtx.moveTo(0, height);
+                bgCtx.lineTo(width * 0.18, height * 0.68);
+                bgCtx.lineTo(width * 0.35, height * 0.76);
+                bgCtx.lineTo(width * 0.68, height * 0.62);
+                bgCtx.lineTo(width, height * 0.82);
+                bgCtx.lineTo(width, height);
+                bgCtx.fill();
+
+                // Main Volcano Body
+                bgCtx.fillStyle = '#0c0406';
+                bgCtx.beginPath();
+                bgCtx.moveTo(0, height);
+                bgCtx.quadraticCurveTo(width * 0.24, height * 0.68, craterX - craterWidth / 2, craterY);
+                bgCtx.lineTo(craterX - craterWidth * 0.22, craterY + 9);
+                bgCtx.lineTo(craterX + craterWidth * 0.22, craterY + 7);
+                bgCtx.lineTo(craterX + craterWidth / 2, craterY);
+                bgCtx.quadraticCurveTo(width * 0.76, height * 0.68, width, height);
+                bgCtx.lineTo(0, height);
+                bgCtx.closePath();
+                bgCtx.fill();
+
+                let pulse = Math.sin(time * 0.05) * 0.2 + 0.8;
+
+                // Fissures
+                drawMagmaFissure([
+                    { x: craterX - craterWidth * 0.3, y: craterY + 25 },
+                    { x: craterX - craterWidth * 0.4, y: craterY + 60 },
+                    { x: craterX - craterWidth * 0.35, y: craterY + 110 }
+                ], pulse * 0.7);
+
+                drawMagmaFissure([
+                    { x: craterX + craterWidth * 0.25, y: craterY + 45 },
+                    { x: craterX + craterWidth * 0.38, y: craterY + 90 },
+                    { x: craterX + craterWidth * 0.45, y: craterY + 140 }
+                ], pulse * 0.6);
+
+                // Lava Pool inside Crater
+                let lavaPool = bgCtx.createRadialGradient(craterX, craterY + 4, 2, craterX, craterY + 4, craterWidth * 0.55);
+                lavaPool.addColorStop(0, `rgba(255, 245, 160, ${pulse})`);
+                lavaPool.addColorStop(0.35, `rgba(255, 100, 0, ${pulse})`);
+                lavaPool.addColorStop(0.75, 'rgba(170, 15, 0, 0.85)');
+                lavaPool.addColorStop(1, 'transparent');
+
+                bgCtx.fillStyle = lavaPool;
+                bgCtx.beginPath();
+                bgCtx.ellipse(craterX, craterY + 3, craterWidth / 2, 13, 0, 0, Math.PI * 2);
+                bgCtx.fill();
+
+                // Main Lava Rivers
+                drawLavaRiver([
+                    { x: craterX - craterWidth * 0.12, y: craterY + 5 },
+                    { x: craterX - width * 0.09, y: height * 0.62 },
+                    { x: craterX - width * 0.16, y: height * 0.82 },
+                    { x: craterX - width * 0.23, y: height }
+                ], 11, pulse);
+
+                drawLavaRiver([
+                    { x: craterX + craterWidth * 0.16, y: craterY + 5 },
+                    { x: craterX + width * 0.06, y: height * 0.6 },
+                    { x: craterX + width * 0.13, y: height * 0.78 },
+                    { x: craterX + width * 0.19, y: height }
+                ], 8, pulse);
+
+                bgCtx.restore();
+            }
+
+            function drawMagmaFissure(points, opacity) {
+                bgCtx.save();
+                bgCtx.strokeStyle = `rgba(255, 80, 0, ${opacity})`;
+                bgCtx.lineWidth = 2;
+                bgCtx.shadowColor = 'rgba(255, 60, 0, 0.8)';
+                bgCtx.shadowBlur = 8;
+                bgCtx.beginPath();
+                bgCtx.moveTo(points[0].x, points[0].y);
+                for (let i = 1; i < points.length; i++) {
+                    bgCtx.lineTo(points[i].x, points[i].y);
+                }
+                bgCtx.stroke();
+                bgCtx.restore();
+            }
+
+            function drawLavaRiver(points, baseWidth, pulse) {
+                bgCtx.save();
+                bgCtx.shadowColor = 'rgba(255, 90, 0, 0.85)';
+                bgCtx.shadowBlur = 18;
+
+                bgCtx.strokeStyle = `rgba(235, 55, 0, ${0.85 * pulse})`;
+                bgCtx.lineWidth = baseWidth;
+                bgCtx.lineCap = 'round';
+                bgCtx.lineJoin = 'round';
+
+                bgCtx.beginPath();
+                bgCtx.moveTo(points[0].x, points[0].y);
+                for (let i = 1; i < points.length; i++) {
+                    bgCtx.lineTo(points[i].x, points[i].y);
+                }
+                bgCtx.stroke();
+
+                bgCtx.strokeStyle = `rgba(255, 230, 110, ${0.95 * pulse})`;
+                bgCtx.lineWidth = baseWidth * 0.35;
+                bgCtx.stroke();
+
+                bgCtx.restore();
+            }
+
+            /* MAIN ANIMATION LOOP */
+            function animate() {
+                time++;
+                
+                // Clear both canvases
+                bgCtx.clearRect(0, 0, width, height);
+                fgCtx.clearRect(0, 0, width, height);
+
+                // 1. Render Background Sky & Volcano Silhouette
+                renderSky();
+
+                // Smoke renders in background behind card
+                smokes.forEach(smoke => {
+                    smoke.update();
+                    smoke.draw(bgCtx);
+                });
+
+                renderVolcano();
+
+                // Crater eruption embers
+                if (Math.random() < 0.45) {
+                    const vx = (Math.random() - 0.5) * 3.2;
+                    const vy = -(Math.random() * 5.5 + 3.5);
+                    lavaSparks.push(new Spark(craterX + (Math.random() - 0.5) * (craterWidth * 0.6), craterY, vx, vy, Math.random() * 30 + 10));
+                }
+
+                for (let i = lavaSparks.length - 1; i >= 0; i--) {
+                    lavaSparks[i].update();
+                    lavaSparks[i].draw(bgCtx);
+                    if (lavaSparks[i].opacity <= 0) {
+                        lavaSparks.splice(i, 1);
+                    }
+                }
+
+                // 2. Render Foreground Elements (Ashes & Sparks OVER the content card)
+                ashes.forEach(ash => {
+                    ash.update();
+                    ash.draw(fgCtx);
+                });
+
+                for (let i = interactiveSparks.length - 1; i >= 0; i--) {
+                    interactiveSparks[i].update();
+                    interactiveSparks[i].draw(fgCtx);
+                    if (interactiveSparks[i].opacity <= 0) {
+                        interactiveSparks.splice(i, 1);
+                    }
+                }
+
+                requestAnimationFrame(animate);
+            }
+
+            animate();
+        });
+    </script>
+</body>
+</html>

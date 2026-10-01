@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>El Origen del Morfius: La Anomalía Mexicana</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background-color: #020604; /* Fondo verde-oscuro profundo */
+            font-family: 'Inter', sans-serif;
+            user-select: none;
+            color: #e2fef0;
+        }
+
+        .font-orbitron {
+            font-family: 'Orbitron', sans-serif;
+        }
+
+        /* Estilo para el canvas interactivo */
+        canvas {
+            display: block;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        /* Contenedor de la interfaz sobre la animación */
+        .ui-container {
+            position: relative;
+            z-index: 10;
+            pointer-events: none;
+        }
+
+        .interactive-element {
+            pointer-events: auto;
+        }
+
+        /* Resplandor neón para títulos */
+        .glow-text {
+            text-shadow: 0 0 10px rgba(57, 255, 20, 0.7), 0 0 250px rgba(0, 255, 128, 0.5), 0 0 40px rgba(0, 255, 128, 0.3);
+        }
+
+        /* Tarjeta con efecto cristal/vidrio esmerilado */
+        .glass-panel {
+            background: rgba(3, 15, 10, 0.78);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            border: 1px solid rgba(57, 255, 20, 0.25);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.85), inset 0 0 20px rgba(57, 255, 20, 0.05);
+        }
+
+        /* Barra de desplazamiento personalizada */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: rgba(3, 15, 10, 0.6);
+            border-radius: 8px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(57, 255, 20, 0.4);
+            border-radius: 8px;
+            border: 1px solid rgba(57, 255, 20, 0.2);
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: rgba(57, 255, 20, 0.8);
+            box-shadow: 0 0 10px #39ff14;
+        }
+
+        /* Personalización de los deslizadores (inputs range) */
+        input[type=range] {
+            -webkit-appearance: none;
+            background: rgba(57, 255, 20, 0.15);
+            border-radius: 8px;
+            height: 6px;
+        }
+
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 16px;
+            width: 16px;
+            border-radius: 50%;
+            background: #39ff14;
+            box-shadow: 0 0 10px #39ff14;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body class="w-screen h-screen relative overflow-hidden flex flex-col justify-between">
+
+    <!-- Canvas para el renderizado de partículas y fantasmas -->
+    <canvas id="particleCanvas"></canvas>
+
+    <div class="ui-container w-full h-full flex flex-col justify-between p-4 md:p-10">
+        <!-- Encabezado / Título principal -->
+        <header class="flex justify-between items-center w-full max-w-7xl mx-auto">
+            <div class="flex items-center gap-3">
+                <div class="w-3 h-3 rounded-full bg-[#39ff14] animate-ping"></div>
+                <span class="font-orbitron text-xs md:text-sm tracking-widest uppercase text-[#39ff14]/80">Ecosistema Especulativo // Espectros Activos</span>
+            </div>
+            <button id="togglePanelBtn" class="interactive-element glass-panel px-4 py-2 rounded-xl text-xs md:text-sm font-medium hover:bg-[#39ff14]/10 transition-all border border-[#39ff14]/30 hover:border-[#39ff14] flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-[#39ff14]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+                </svg>
+                <span>Ajustes</span>
+            </button>
+        </header>
+
+        <!-- Centro / Contenido Narrativo -->
+        <main class="max-w-4xl mx-auto my-auto px-2 w-full py-2 interactive-element">
+            <div class="glass-panel p-6 md:p-10 rounded-3xl border border-[#39ff14]/30 max-h-[74vh] flex flex-col shadow-2xl">
+                
+                <!-- Encabezado del Documento -->
+                <div class="mb-6 border-b border-[#39ff14]/20 pb-4 text-center md:text-left">
+                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#39ff14]/10 border border-[#39ff14]/30 text-xs font-orbitron text-[#39ff14] mb-3">
+                        <span class="w-2 h-2 rounded-full bg-[#39ff14] animate-pulse"></span>
+                        ARCHIVO CLASIFICADO // ARCHIVO ANOMALÍA
+                    </div>
+                    <h1 class="font-orbitron text-2xl sm:text-3xl md:text-4xl font-black text-white tracking-tight glow-text uppercase">
+                        El Origen del Morfius: <span class="text-[#39ff14]">La Anomalía Mexicana</span>
+                    </h1>
+                </div>
+
+                <!-- Contenido con scroll -->
+                <div class="overflow-y-auto custom-scrollbar pr-3 md:pr-5 space-y-6 text-sm md:text-base leading-relaxed text-emerald-100/90 font-light">
+                    
+                    <!-- Sección 1 -->
+                    <section class="bg-black/40 p-4 md:p-5 rounded-2xl border border-[#39ff14]/10 hover:border-[#39ff14]/30 transition-all">
+                        <h2 class="font-orbitron text-base md:text-lg font-bold text-[#39ff14] mb-2 flex items-center gap-2">
+                            <span class="text-xs bg-[#39ff14]/20 text-[#39ff14] px-2 py-0.5 rounded border border-[#39ff14]/40">01</span>
+                            El Núcleo de la Anomalía y la Energía Desconocida
+                        </h2>
+                        <p class="text-emerald-100/80">
+                            En las profundidades del territorio mexicano yace una fuente de energía desconocida y oculta cuyo origen sigue siendo un misterio para la ciencia global. Esta radiación latente es la responsable directa de la existencia de los <strong class="text-white font-semibold">Morfius</strong>, actuando como un catalizador biológico que altera el ADN celular de los habitantes locales y despierta transformaciones prehistóricas.
+                        </p>
+                    </section>
+
+                    <!-- Sección 2 -->
+                    <section class="bg-black/40 p-4 md:p-5 rounded-2xl border border-[#39ff14]/10 hover:border-[#39ff14]/30 transition-all">
+                        <h2 class="font-orbitron text-base md:text-lg font-bold text-[#39ff14] mb-2 flex items-center gap-2">
+                            <span class="text-xs bg-[#39ff14]/20 text-[#39ff14] px-2 py-0.5 rounded border border-[#39ff14]/40">02</span>
+                            El Campo de Supresión Electromagnética (Efecto Disrupción)
+                        </h2>
+                        <p class="mb-3 text-emerald-100/80">
+                            La energía del objeto no solo crea poderes, sino que actúa como un escudo planetario natural mediante un campo electromagnético único:
+                        </p>
+                        <ul class="space-y-2.5 pl-2">
+                            <li class="flex items-start gap-2.5">
+                                <span class="w-1.5 h-1.5 rounded-full bg-[#39ff14] mt-2 shrink-0 shadow-[0_0_8px_#39ff14]"></span>
+                                <div>
+                                    <strong class="text-white font-medium">Héroes extranjeros:</strong> <span class="text-emerald-100/80">Al cruzar la frontera o entrar en espacio aéreo mexicano, el campo interfiere con la firma genética de sus Quirks. Esto provoca desde fallos intermitentes en la activación de sus habilidades hasta la anulación total de sus poderes mientras permanezcan en el país.</span>
+                                </div>
+                            </li>
+                            <li class="flex items-start gap-2.5">
+                                <span class="w-1.5 h-1.5 rounded-full bg-[#39ff14] mt-2 shrink-0 shadow-[0_0_8px_#39ff14]"></span>
+                                <div>
+                                    <strong class="text-white font-medium">Inmunidad nativa:</strong> <span class="text-emerald-100/80">Los ciudadanos y héroes nacidos en territorio mexicano son biológicamente inmunes a este efecto de supresión, ya que sus cuerpos se adaptaron a la radiación desde la gestación.</span>
+                                </div>
+                            </li>
+                        </ul>
+                    </section>
+
+                    <!-- Sección 3 -->
+                    <section class="bg-black/40 p-4 md:p-5 rounded-2xl border border-[#39ff14]/10 hover:border-[#39ff14]/30 transition-all">
+                        <h2 class="font-orbitron text-base md:text-lg font-bold text-[#39ff14] mb-2 flex items-center gap-2">
+                            <span class="text-xs bg-[#39ff14]/20 text-[#39ff14] px-2 py-0.5 rounded border border-[#39ff14]/40">03</span>
+                            Escasez Crítica de Héroes y Rareza Biológica
+                        </h2>
+                        <p class="mb-3 text-emerald-100/80">
+                            A pesar de contar con este fenómeno único, México enfrenta una severa escasez de héroes registrados por dos razones principales:
+                        </p>
+                        <ul class="space-y-2.5 pl-2 mb-4">
+                            <li class="flex items-start gap-2.5">
+                                <span class="w-1.5 h-1.5 rounded-full bg-[#39ff14] mt-2 shrink-0 shadow-[0_0_8px_#39ff14]"></span>
+                                <div>
+                                    <strong class="text-white font-medium">Tasa de nacimiento de Quirks extremadamente baja:</strong> <span class="text-emerald-100/80">A diferencia del resto del mundo, donde el 80% de la población nace con un don, en México la probabilidad de que un niño nazca con un Quirk tradicional es mínima.</span>
+                                </div>
+                            </li>
+                            <li class="flex items-start gap-2.5">
+                                <span class="w-1.5 h-1.5 rounded-full bg-[#39ff14] mt-2 shrink-0 shadow-[0_0_8px_#39ff14]"></span>
+                                <div>
+                                    <strong class="text-white font-medium">Selección aleatoria del Morfius:</strong> <span class="text-emerald-100/80">El Morfius tampoco es común; se manifiesta únicamente en un porcentaje reducido de la población de manera aleatoria.</span>
+                                </div>
+                            </li>
+                        </ul>
+
+                        <div class="p-3.5 bg-[#39ff14]/10 border border-[#39ff14]/30 rounded-xl text-emerald-200 text-xs md:text-sm italic">
+                            "Debido a esto, un héroe mexicano capaz de dominar tanto un Quirk como un Morfius es considerado un activo táctico de valor incalculable, codiciado y respetado a nivel internacional."
+                        </div>
+                    </section>
+
+                </div>
+            </div>
+        </main>
+
+        <!-- Pie de página y Panel de Ajustes Desplegable -->
+        <footer class="w-full max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-end gap-4">
+            
+            <!-- Panel Control Flotante -->
+            <div id="controlsPanel" class="interactive-element glass-panel p-5 rounded-2xl w-full md:w-80 transition-all duration-300 opacity-90 hover:opacity-100">
+                <h3 class="font-orbitron text-xs text-[#39ff14] font-bold tracking-wider uppercase mb-4 flex justify-between items-center">
+                    Ajustes de la Anomalía
+                    <span id="particleCountDisplay" class="text-xs text-white/60 font-mono">150 Partículas</span>
+                </h3>
+                
+                <div class="space-y-4 text-xs">
+                    <div>
+                        <label class="flex justify-between mb-1 text-emerald-100/80">
+                            <span>Densidad de Partículas</span>
+                        </label>
+                        <input id="countSlider" type="range" min="50" max="250" value="150" class="w-full cursor-pointer">
+                    </div>
+
+                    <div>
+                        <label class="flex justify-between mb-1 text-emerald-100/80">
+                            <span>Fantasmas Verdes Activos</span>
+                            <span id="ghostCountDisplay" class="text-white/60 font-mono">8</span>
+                        </label>
+                        <input id="ghostSlider" type="range" min="2" max="15" value="8" class="w-full cursor-pointer">
+                    </div>
+                    
+                    <div>
+                        <label class="flex justify-between mb-1 text-emerald-100/80">
+                            <span>Interacción del Cursor</span>
+                        </label>
+                        <div class="grid grid-cols-2 gap-2 mt-1">
+                            <button id="repulseBtn" class="py-1.5 px-3 rounded-lg border border-[#39ff14] bg-[#39ff14]/20 text-[#39ff14] font-medium transition-all">Repulsión</button>
+                            <button id="attractBtn" class="py-1.5 px-3 rounded-lg border border-white/10 bg-black/30 text-white/70 font-medium transition-all hover:border-[#39ff14]/50">Atracción</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Información adicional -->
+            <div class="text-xs text-emerald-100/40 text-center md:text-right w-full md:w-auto">
+                Lienzo Animado // Espectros Esmeralda en Tiempo Real
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        window.addEventListener('load', () => {
+            const canvas = document.getElementById('particleCanvas');
+            const ctx = canvas.getContext('2d');
+
+            let width, height;
+            let particles = [];
+            let ghosts = [];
+
+            const settings = {
+                particleCount: 150,
+                ghostCount: 8,
+                baseSpeed: 1,
+                interactionMode: 'repulse',
+                mouseRadius: 180
+            };
+
+            const mouse = {
+                x: null,
+                y: null,
+                active: false
+            };
+
+            const ghostGreens = [
+                { r: 57, g: 255, b: 20 },   // Neon Phosphor Green
+                { r: 0, g: 255, b: 128 },   // Spring Emerald
+                { r: 127, g: 255, b: 0 },   // Chartreuse Ghost
+                { r: 20, g: 220, b: 100 }   // Mint Glow
+            ];
+
+            function resizeCanvas() {
+                width = canvas.width = window.innerWidth;
+                height = canvas.height = window.innerHeight;
+            }
+
+            class GreenGhost {
+                constructor() {
+                    this.reset(true);
+                }
+
+                reset(initial = false) {
+                    this.x = Math.random() * width;
+                    this.y = initial ? Math.random() * height : height + 100;
+                    this.size = Math.random() * 25 + 25; // Tamaño base del fantasma
+                    this.speedY = Math.random() * 0.8 + 0.4; // Velocidad de ascenso
+                    
+                    this.angle = Math.random() * Math.PI * 2;
+                    this.wobbleSpeed = Math.random() * 0.02 + 0.01;
+                    this.wobbleAmplitude = Math.random() * 1.5 + 0.5;
+
+                    this.alpha = Math.random() * 0.35 + 0.25; // Transparencia fantasmal
+                    this.color = ghostGreens[Math.floor(Math.random() * ghostGreens.length)];
+
+                    // Offset para responder al cursor
+                    this.offsetX = 0;
+                    this.offsetY = 0;
+                }
+
+                update() {
+                    // Movimiento ondulatorio suave
+                    this.angle += this.wobbleSpeed;
+                    const wobbleX = Math.sin(this.angle) * this.wobbleAmplitude;
+
+                    this.x += wobbleX + this.offsetX;
+                    this.y -= this.speedY - this.offsetY;
+
+                    // Amortiguar interacción del ratón
+                    this.offsetX *= 0.94;
+                    this.offsetY *= 0.94;
+
+                    // Reacción al cursor
+                    if (mouse.active && mouse.x !== null && mouse.y !== null) {
+                        const dx = mouse.x - this.x;
+                        const dy = mouse.y - this.y;
+                        const dist = Math.sqrt(dx * dx + dy * dy);
+
+                        if (dist < settings.mouseRadius * 1.5) {
+                            const force = (1 - dist / (settings.mouseRadius * 1.5));
+                            const angle = Math.atan2(dy, dx);
+                            const dir = settings.interactionMode === 'repulse' ? -1 : 1;
+
+                            this.offsetX += Math.cos(angle) * force * 2 * dir;
+                            this.offsetY += Math.sin(angle) * force * 2 * dir;
+                        }
+                    }
+
+                    // Reiniciar posición cuando suba por completo
+                    if (this.y < -120) {
+                        this.reset(false);
+                    }
+                }
+
+                draw() {
+                    ctx.save();
+                    ctx.translate(this.x, this.y);
+
+                    const { r, g, b } = this.color;
+                    const headRadius = this.size * 0.5;
+                    const tailLength = this.size * 1.4;
+
+                    // Brillo espectral neón
+                    ctx.shadowBlur = 20;
+                    ctx.shadowColor = `rgba(${r}, ${g}, ${b}, ${this.alpha * 1.5})`;
+
+                    // Gradiente del cuerpo del fantasma
+                    const bodyGrad = ctx.createLinearGradient(0, -headRadius, 0, tailLength);
+                    bodyGrad.addColorStop(0, `rgba(${r}, ${g}, ${b}, ${this.alpha * 1.2})`);
+                    bodyGrad.addColorStop(0.5, `rgba(${r}, ${g}, ${b}, ${this.alpha * 0.6})`);
+                    bodyGrad.addColorStop(1, `rgba(${r}, ${g}, ${b}, 0)`);
+
+                    ctx.fillStyle = bodyGrad;
+                    ctx.beginPath();
+
+                    // Cabeza redondeada
+                    ctx.arc(0, 0, headRadius, Math.PI, 0, false);
+
+                    // Cola de humo/espectro ondulante en la base
+                    const wave = Math.sin(this.angle * 2) * (headRadius * 0.3);
+                    const wave2 = Math.cos(this.angle * 2) * (headRadius * 0.3);
+
+                    ctx.bezierCurveTo(
+                        headRadius, tailLength * 0.5, 
+                        headRadius + wave, tailLength, 
+                        0, tailLength
+                    );
+                    ctx.bezierCurveTo(
+                        -headRadius + wave2, tailLength, 
+                        -headRadius, tailLength * 0.5, 
+                        -headRadius, 0
+                    );
+
+                    ctx.closePath();
+                    ctx.fill();
+
+                    // Dibujar Ojos Brillantes del Fantasma
+                    const eyeOffsetX = headRadius * 0.32;
+                    const eyeOffsetY = -headRadius * 0.1;
+                    const eyeSize = headRadius * 0.18;
+
+                    // Halo para los ojos
+                    ctx.shadowBlur = 10;
+                    ctx.shadowColor = '#ffffff';
+                    ctx.fillStyle = `rgba(255, 255, 255, ${this.alpha * 1.8})`;
+
+                    // Ojo Izquierdo
+                    ctx.beginPath();
+                    ctx.arc(-eyeOffsetX, eyeOffsetY, eyeSize, 0, Math.PI * 2);
+                    ctx.fill();
+
+                    // Ojo Derecho
+                    ctx.beginPath();
+                    ctx.arc(eyeOffsetX, eyeOffsetY, eyeSize, 0, Math.PI * 2);
+                    ctx.fill();
+
+                    ctx.restore();
+                }
+            }
+
+            class GhostParticle {
+                constructor() {
+                    this.reset(true);
+                }
+
+                reset(initial = false) {
+                    this.x = Math.random() * width;
+                    this.y = initial ? Math.random() * height : height + 20;
+                    this.isLarge = Math.random() < 0.2;
+                    
+                    if (this.isLarge) {
+                        this.radius = Math.random() * 6 + 4;
+                        this.maxAlpha = Math.random() * 0.35 + 0.2;
+                    } else {
+                        this.radius = Math.random() * 2.2 + 0.8;
+                        this.maxAlpha = Math.random() * 0.7 + 0.3;
+                    }
+
+                    this.alpha = initial ? Math.random() * this.maxAlpha : 0;
+                    this.color = ghostGreens[Math.floor(Math.random() * ghostGreens.length)];
+                    this.vx = (Math.random() - 0.5) * 0.5;
+                    this.vy = -(Math.random() * 0.8 + 0.3);
+                    
+                    this.pulseSpeed = Math.random() * 0.02 + 0.005;
+                    this.wobbleAngle = Math.random() * Math.PI * 2;
+                    this.wobbleSpeed = Math.random() * 0.03 + 0.01;
+                    
+                    this.offsetX = 0;
+                    this.offsetY = 0;
+                }
+
+                update() {
+                    this.wobbleAngle += this.wobbleSpeed;
+                    const wobbleX = Math.sin(this.wobbleAngle) * 0.5;
+
+                    this.x += (this.vx + wobbleX) * settings.baseSpeed + this.offsetX;
+                    this.y += this.vy * settings.baseSpeed + this.offsetY;
+
+                    this.offsetX *= 0.92;
+                    this.offsetY *= 0.92;
+
+                    this.alpha += Math.sin(this.wobbleAngle) * 0.008;
+                    if (this.alpha > this.maxAlpha) this.alpha = this.maxAlpha;
+                    if (this.alpha < 0.1) this.alpha = 0.1;
+
+                    if (mouse.active && mouse.x !== null && mouse.y !== null) {
+                        const dx = mouse.x - this.x;
+                        const dy = mouse.y - this.y;
+                        const distance = Math.sqrt(dx * dx + dy * dy);
+
+                        if (distance < settings.mouseRadius) {
+                            const force = (1 - distance / settings.mouseRadius);
+                            const angle = Math.atan2(dy, dx);
+                            const dir = settings.interactionMode === 'repulse' ? -1 : 1;
+                            const pushPower = this.isLarge ? force * 3 : force * 5;
+
+                            this.offsetX += Math.cos(angle) * pushPower * dir;
+                            this.offsetY += Math.sin(angle) * pushPower * dir;
+                        }
+                    }
+
+                    if (this.y < -30 || this.x < -30 || this.x > width + 30) {
+                        this.reset(false);
+                    }
+                }
+
+                draw() {
+                    ctx.save();
+                    const { r, g, b } = this.color;
+
+                    if (this.isLarge) {
+                        const gradient = ctx.createRadialGradient(
+                            this.x, this.y, 0,
+                            this.x, this.y, this.radius * 2.5
+                        );
+                        gradient.addColorStop(0, `rgba(${r}, ${g}, ${b}, ${this.alpha * 1.2})`);
+                        gradient.addColorStop(0.4, `rgba(${r}, ${g}, ${b}, ${this.alpha * 0.4})`);
+                        gradient.addColorStop(1, `rgba(${r}, ${g}, ${b}, 0)`);
+
+                        ctx.fillStyle = gradient;
+                        ctx.beginPath();
+                        ctx.arc(this.x, this.y, this.radius * 2.5, 0, Math.PI * 2);
+                        ctx.fill();
+                    } else {
+                        ctx.shadowBlur = 8;
+                        ctx.shadowColor = `rgba(${r}, ${g}, ${b}, ${this.alpha})`;
+                        ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${this.alpha})`;
+                        ctx.beginPath();
+                        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                        ctx.fill();
+                    }
+
+                    ctx.restore();
+                }
+            }
+
+            function initElements() {
+                particles = [];
+                for (let i = 0; i < settings.particleCount; i++) {
+                    particles.push(new GhostParticle());
+                }
+
+                ghosts = [];
+                for (let i = 0; i < settings.ghostCount; i++) {
+                    ghosts.push(new GreenGhost());
+                }
+            }
+
+            function animate() {
+                // Fondo oscuro con rastro de luz
+                ctx.fillStyle = 'rgba(2, 6, 4, 0.28)';
+                ctx.fillRect(0, 0, width, height);
+
+                // Renderizar Fantasmas en la capa posterior
+                for (let i = 0; i < ghosts.length; i++) {
+                    ghosts[i].update();
+                    ghosts[i].draw();
+                }
+
+                // Renderizar Partículas en la capa frontal
+                for (let i = 0; i < particles.length; i++) {
+                    particles[i].update();
+                    particles[i].draw();
+                }
+
+                requestAnimationFrame(animate);
+            }
+
+            // Event Listeners para dimensiones y ratón
+            window.addEventListener('resize', () => {
+                resizeCanvas();
+                initElements();
+            });
+
+            window.addEventListener('mousemove', (e) => {
+                mouse.x = e.clientX;
+                mouse.y = e.clientY;
+                mouse.active = true;
+            });
+
+            window.addEventListener('mouseleave', () => {
+                mouse.active = false;
+            });
+
+            window.addEventListener('touchmove', (e) => {
+                if (e.touches.length > 0) {
+                    mouse.x = e.touches[0].clientX;
+                    mouse.y = e.touches[0].clientY;
+                    mouse.active = true;
+                }
+            }, { passive: true });
+
+            window.addEventListener('touchend', () => {
+                mouse.active = false;
+            });
+
+            // Controles UI
+            const countSlider = document.getElementById('countSlider');
+            const particleCountDisplay = document.getElementById('particleCountDisplay');
+            const ghostSlider = document.getElementById('ghostSlider');
+            const ghostCountDisplay = document.getElementById('ghostCountDisplay');
+            const repulseBtn = document.getElementById('repulseBtn');
+            const attractBtn = document.getElementById('attractBtn');
+            const togglePanelBtn = document.getElementById('togglePanelBtn');
+            const controlsPanel = document.getElementById('controlsPanel');
+
+            countSlider.addEventListener('input', (e) => {
+                settings.particleCount = parseInt(e.target.value);
+                particleCountDisplay.textContent = settings.particleCount + ' Partículas';
+                
+                if (particles.length < settings.particleCount) {
+                    for (let i = particles.length; i < settings.particleCount; i++) {
+                        particles.push(new GhostParticle());
+                    }
+                } else {
+                    particles.splice(settings.particleCount);
+                }
+            });
+
+            ghostSlider.addEventListener('input', (e) => {
+                settings.ghostCount = parseInt(e.target.value);
+                ghostCountDisplay.textContent = settings.ghostCount;
+
+                if (ghosts.length < settings.ghostCount) {
+                    for (let i = ghosts.length; i < settings.ghostCount; i++) {
+                        ghosts.push(new GreenGhost());
+                    }
+                } else {
+                    ghosts.splice(settings.ghostCount);
+                }
+            });
+
+            repulseBtn.addEventListener('click', () => {
+                settings.interactionMode = 'repulse';
+                repulseBtn.className = "py-1.5 px-3 rounded-lg border border-[#39ff14] bg-[#39ff14]/20 text-[#39ff14] font-medium transition-all";
+                attractBtn.className = "py-1.5 px-3 rounded-lg border border-white/10 bg-black/30 text-white/70 font-medium transition-all hover:border-[#39ff14]/50";
+            });
+
+            attractBtn.addEventListener('click', () => {
+                settings.interactionMode = 'attract';
+                attractBtn.className = "py-1.5 px-3 rounded-lg border border-[#39ff14] bg-[#39ff14]/20 text-[#39ff14] font-medium transition-all";
+                repulseBtn.className = "py-1.5 px-3 rounded-lg border border-white/10 bg-black/30 text-white/70 font-medium transition-all hover:border-[#39ff14]/50";
+            });
+
+            togglePanelBtn.addEventListener('click', () => {
+                controlsPanel.classList.toggle('hidden');
+            });
+
+            resizeCanvas();
+            initElements();
+            animate();
+        });
+    </script>
+</body>
+</html>
