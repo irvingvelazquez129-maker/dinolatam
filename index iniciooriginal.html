@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dino-Mexicanos-Héroe - Lore Dino-LATAM AU MHA</title>
+  
+  <!-- Importación de fuentes -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html, body {
+      min-height: 100vh;
+      width: 100%;
+    }
+
+    body {
+      background-color: #ff5500;
+      background-image: 
+        url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 80 80"><g fill="none" stroke="rgba(255,255,255,0.18)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10,10 h20 v20 h-20 z M20,5 v10 M20,25 v10 M5,20 h10 M25,20 h10"/><path d="M15,15 h10 v10 h-10 z"/><path d="M50,15 Q65,15 65,30 Q65,45 50,45 Q40,45 40,25 Q40,25 55,25"/><path d="M15,55 L25,45 L35,55 L35,70 L15,70 Z M20,70 L20,60 L30,60 L30,70"/><path d="M55,55 h15 v15 h-15 z M62.5,50 v25 M50,62.5 h25"/></g></svg>'),
+        radial-gradient(circle at center, #ffaa00 0%, #ff5500 50%, #cc2200 100%);
+      
+      background-repeat: repeat, no-repeat;
+      background-position: center center;
+      background-size: 80px 80px, cover;
+      background-attachment: fixed;
+
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Montserrat', sans-serif;
+      padding: 4rem 1rem 10rem 1rem;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* -------------------------------------------------------------
+       OJOS REPTILIANOS EN LAS ESQUINAS CON ANIMACIÓN Y PARPADEO
+    ------------------------------------------------------------- */
+    .ojo-reptil {
+      position: fixed;
+      top: 20px;
+      width: 180px;
+      height: 100px;
+      z-index: 2;
+      pointer-events: none;
+      border-radius: 50%;
+      background: radial-gradient(ellipse at center, #ffea00 0%, #ff6a00 50%, rgba(204, 0, 0, 0.8) 75%, transparent 100%);
+      box-shadow: 0 0 35px #ff5500, inset 0 0 25px #000;
+      filter: blur(1px) drop-shadow(0 0 15px rgba(255, 100, 0, 0.8));
+      opacity: 0.88;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      animation: parpadeoOjo 7s infinite ease-in-out;
+    }
+
+    .ojo-reptil.izquierdo {
+      left: 15px;
+      transform: rotate(-12deg);
+    }
+
+    .ojo-reptil.derecho {
+      right: 15px;
+      transform: rotate(12deg);
+      animation-delay: 0.5s;
+    }
+
+    /* Pupila rasgada de reptil animada */
+    .ojo-reptil::after {
+      content: '';
+      width: 16px;
+      height: 80px;
+      background: #0d0400;
+      border-radius: 50%;
+      box-shadow: 0 0 12px rgba(0, 0, 0, 0.9), 0 0 4px #ffaa00;
+      filter: blur(0.5px);
+      animation: movPupila 6s infinite ease-in-out;
+    }
+
+    /* Párpados animados */
+    .parpado {
+      position: absolute;
+      left: 0;
+      width: 100%;
+      height: 50%;
+      background: #2b0b00;
+      z-index: 3;
+      transition: transform 0.1s ease;
+    }
+
+    .parpado-superior {
+      top: 0;
+      transform-origin: top;
+      animation: parpadoArriba 7s infinite ease-in-out;
+    }
+
+    .parpado-inferior {
+      bottom: 0;
+      transform-origin: bottom;
+      animation: parpadoAbajo 7s infinite ease-in-out;
+    }
+
+    .derecho .parpado-superior,
+    .derecho .parpado-inferior {
+      animation-delay: 0.5s;
+    }
+
+    /* Keyframes Parpadeo */
+    @keyframes parpadoArriba {
+      0%, 90%, 98%, 100% { transform: scaleY(0); }
+      93%, 95% { transform: scaleY(1.05); }
+    }
+
+    @keyframes parpadoAbajo {
+      0%, 90%, 98%, 100% { transform: scaleY(0); }
+      93%, 95% { transform: scaleY(1.05); }
+    }
+
+    /* Keyframes Pupila */
+    @keyframes movPupila {
+      0%, 100% { transform: scaleX(1) scaleY(1); }
+      30% { transform: scaleX(0.6) scaleY(1.05) translateX(-2px); }
+      60% { transform: scaleX(1.3) scaleY(0.95) translateX(2px); }
+      80% { transform: scaleX(0.8) scaleY(1); }
+    }
+
+    /* Lienzo para Partículas de Fuego */
+    #canvasFuego {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none;
+      z-index: 3;
+    }
+
+    /* -------------------------------------------------------------
+       CASCADA DE LAVA (ANIMACIÓN SUPERIOR)
+    ------------------------------------------------------------- */
+    .cascada-lava-contenedor {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1;
+      overflow: hidden;
+    }
+
+    .flujo-lava {
+      position: absolute;
+      top: -10%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 340px;
+      height: 120%;
+      background: linear-gradient(
+        180deg, 
+        #ffe600 0%, 
+        #ff5500 25%, 
+        #ff0000 50%, 
+        #ff5500 75%, 
+        #ffe600 100%
+      );
+      background-size: 100% 200%;
+      animation: flujoLavaAnim 2.5s linear infinite;
+      filter: blur(8px) drop-shadow(0 0 25px #ff3300);
+      opacity: 0.85;
+      border-radius: 0 0 40px 40px;
+    }
+
+    .flujo-lava-textura {
+      position: absolute;
+      top: -10%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 270px;
+      height: 120%;
+      background: repeating-linear-gradient(
+        0deg,
+        rgba(255, 230, 0, 0.9) 0px,
+        rgba(255, 68, 0, 0.8) 40px,
+        rgba(150, 0, 0, 0.9) 80px,
+        rgba(255, 230, 0, 0.9) 120px
+      );
+      background-size: 100% 300%;
+      animation: flujoLavaAnim 1.8s linear infinite;
+      filter: blur(4px);
+      mix-blend-mode: color-dodge;
+      border-radius: 0 0 30px 30px;
+    }
+
+    .borde-incandescente {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 30px;
+      background: #ffffaa;
+      box-shadow: 0 0 40px 20px #ff3300, 0 0 80px 40px #ffaa00;
+    }
+
+    @keyframes flujoLavaAnim {
+      0% { background-position: 0 0%; }
+      100% { background-position: 0 100%; }
+    }
+
+    /* -------------------------------------------------------------
+       TEXTOS Y SUBTÍTULO TALLADOS EN PIEDRA VOLCÁNICA
+    ------------------------------------------------------------- */
+    .header-titulos {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-bottom: 2.5rem;
+      text-align: center;
+      max-width: 1200px;
+    }
+
+    .texto-volcanico {
+      font-family: 'Cinzel Decorative', serif;
+      font-size: clamp(2.2rem, 5vw, 4.2rem);
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 3px;
+      line-height: 1.15;
+      margin-bottom: 0.5rem;
+      
+      color: #2b2825;
+      background: radial-gradient(circle, #3d3935 0%, #1f1d1b 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+
+      filter: drop-shadow(0px -2px 1px rgba(0, 0, 0, 0.95))
+              drop-shadow(0px 2px 2px rgba(255, 200, 150, 0.6))
+              drop-shadow(3px 5px 8px rgba(0, 0, 0, 0.85));
+    }
+
+    .subtitulo-volcanico {
+      font-family: 'Cinzel Decorative', serif;
+      font-size: clamp(1rem, 2.5vw, 1.8rem);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      
+      color: #d4a359;
+      background: linear-gradient(180deg, #ffe0aa 0%, #d4a359 50%, #73532b 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+
+      filter: drop-shadow(0px -1px 0px rgba(0, 0, 0, 0.9))
+              drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.8));
+    }
+
+    /* Contenedor de las tarjetas de piedra */
+    .contenedor-grid {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      gap: 2rem;
+      max-width: 1100px;
+      width: 100%;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .apartado-piedra {
+      flex: 1;
+      min-width: 260px;
+      max-width: 320px;
+      aspect-ratio: 1 / 1;
+      
+      background-color: #2e2b28;
+      background-image: 
+        radial-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 0),
+        radial-gradient(rgba(0, 0, 0, 0.5) 1px, transparent 0);
+      background-size: 6px 6px, 10px 10px;
+      background-position: 0 0, 3px 3px;
+
+      border-top: 3px solid #4a4540;
+      border-left: 3px solid #3d3935;
+      border-right: 3px solid #1a1816;
+      border-bottom: 3px solid #121110;
+      border-radius: 6px;
+
+      box-shadow: 
+        0 12px 24px rgba(0, 0, 0, 0.6),
+        inset 0 0 20px rgba(0, 0, 0, 0.8);
+
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .apartado-piedra:hover {
+      transform: translateY(-6px);
+      box-shadow: 
+        0 18px 30px rgba(0, 0, 0, 0.7),
+        inset 0 0 15px rgba(0, 0, 0, 0.6);
+    }
+
+    /* ESTILO PARA LOS HIPERVÍNCULOS EN LAS PIEDRAS */
+    .enlace-piedra {
+      text-decoration: none;
+      color: inherit;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      height: 100%;
+      cursor: pointer;
+    }
+
+    .enlace-piedra:hover h2 {
+      background: linear-gradient(180deg, #ffffff 0%, #ffd085 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .icono-piedra {
+      font-size: 2.4rem;
+      margin-bottom: 0.8rem;
+      filter: drop-shadow(0px 2px 4px rgba(0,0,0,0.8));
+    }
+
+    .apartado-piedra h2 {
+      font-family: 'Cinzel Decorative', serif;
+      font-size: 1.25rem;
+      font-weight: 700;
+      letter-spacing: 1px;
+      margin-bottom: 0.8rem;
+      text-transform: uppercase;
+      width: 100%;
+      padding-bottom: 0.4rem;
+      border-bottom: 1px solid rgba(212, 163, 89, 0.25);
+
+      color: #8c7355;
+      background: linear-gradient(180deg, #d4a359 0%, #73532b 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+
+      filter: drop-shadow(0px -1px 0px rgba(0, 0, 0, 0.9))
+              drop-shadow(0px 1px 0px rgba(255, 255, 255, 0.2));
+      transition: all 0.3s ease;
+    }
+
+    .apartado-piedra p {
+      font-size: 0.9rem;
+      line-height: 1.5;
+      color: #a89f91;
+      font-weight: 400;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Ojos Reptilianos en Esquinas Superior Izquierda y Derecha -->
+  <div class="ojo-reptil izquierdo">
+    <div class="parpado parpado-superior"></div>
+    <div class="parpado parpado-inferior"></div>
+  </div>
+  <div class="ojo-reptil derecho">
+    <div class="parpado parpado-superior"></div>
+    <div class="parpado parpado-inferior"></div>
+  </div>
+
+  <!-- Lienzo para Partículas de Fuego -->
+  <canvas id="canvasFuego"></canvas>
+
+  <!-- Cascada de Lava -->
+  <div class="cascada-lava-contenedor">
+    <div class="borde-incandescente"></div>
+    <div class="flujo-lava"></div>
+    <div class="flujo-lava-textura"></div>
+  </div>
+
+  <!-- Encabezado con Título y Subtítulo -->
+  <header class="header-titulos">
+    <h1 class="texto-volcanico">Dino-Mexicanos-Héroe</h1>
+    <h2 class="subtitulo-volcanico">(LORE DE LOS DINO-LATAM. AU MHA)</h2>
+  </header>
+
+  <!-- Cuadrados de Piedra -->
+  <div class="contenedor-grid">
+    
+    <!-- CUADRADO 1 CON HIPERVÍNCULO -->
+    <div class="apartado-piedra">
+      <a href="indextt.html" class="enlace-piedra">
+        <div class="icono-piedra">🦖</div>
+        <h2>Fuerza Ancestral</h2>
+        <p>El poder de las criaturas prehistóricas grabado sobre basalto con el vigor de los antiguos guerreros.</p>
+      </a>
+    </div>
+
+    <!-- CUADRADO 2 CON HIPERVÍNCULO -->
+    <div class="apartado-piedra">
+      <a href="index4.html" class="enlace-piedra">
+        <div class="icono-piedra">🔥</div>
+        <h2>Legado Guardián</h2>
+        <p>Defensores envueltos en fuego mítico, esculpidos en alto relief como símbolos de valentía.</p>
+      </a>
+    </div>
+
+    <!-- CUADRADO 3 CON HIPERVÍNCULO -->
+    <div class="apartado-piedra">
+      <a href="indexcuadrofinal.html" class="enlace-piedra">
+        <div class="icono-piedra">⚡</div>
+        <h2>Poder Heroico</h2>
+        <p>Energía titánica que hace retumbar las estructuras de piedra ancestrales.</p>
+      </a>
+    </div>
+
+  </div>
+
+  <!-- Script para la animación de partículas -->
+  <script>
+    const canvas = document.getElementById('canvasFuego');
+    const ctx = canvas.getContext('2d');
+
+    let width, height;
+
+    function resize() {
+      width = canvas.width = window.innerWidth;
+      height = canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resize);
+    resize();
+
+    // Se incrementa la cantidad de partículas de fuego (de 90 a 220)
+    const numParticulas = 220;
+    const particulas = [];
+
+    const coloresFuego = [
+      'rgba(255, 230, 0, ',
+      'rgba(255, 140, 0, ',
+      'rgba(255, 60, 0, ',
+      'rgba(255, 200, 110, ',
+      'rgba(255, 255, 180, '
+    ];
+
+    class Particula {
+      constructor() {
+        this.reset(true);
+      }
+
+      reset(inicial = false) {
+        this.x = Math.random() * width;
+        this.y = inicial ? Math.random() * height : height + 15;
+        this.tamano = Math.random() * 4 + 0.8;
+        this.velocidadY = Math.random() * 2.5 + 1.2;
+        this.velocidadX = (Math.random() - 0.5) * 2;
+        this.opacidad = Math.random() * 0.85 + 0.15;
+        this.vida = Math.random() * 0.012 + 0.004;
+        this.colorBase = coloresFuego[Math.floor(Math.random() * coloresFuego.length)];
+      }
+
+      update() {
+        this.y -= this.velocidadY;
+        this.x += this.velocidadX + Math.sin(this.y * 0.015) * 0.7;
+        this.opacidad -= this.vida;
+
+        if (this.opacidad <= 0 || this.y < -15) {
+          this.reset();
+        }
+      }
+
+      draw() {
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.tamano, 0, Math.PI * 2);
+        ctx.fillStyle = this.colorBase + this.opacidad + ')';
+        ctx.shadowBlur = 12;
+        ctx.shadowColor = '#ff4400';
+        ctx.fill();
+        ctx.shadowBlur = 0;
+      }
+    }
+
+    for (let i = 0; i < numParticulas; i++) {
+      particulas.push(new Particula());
+    }
+
+    function animar() {
+      ctx.clearRect(0, 0, width, height);
+
+      particulas.forEach(p => {
+        p.update();
+        p.draw();
+      });
+
+      requestAnimationFrame(animar);
+    }
+
+    animar();
+  </script>
+
+</body>
+</html>
